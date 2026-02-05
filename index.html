@@ -46,8 +46,11 @@
       }
 
       .news-title {
-        font-size: 18px;
+        font-size: 12px;
         font-weight: bold;
+      }
+      .btn-danger {
+        font-size: 12px;
       }
     </style>
   </head>
@@ -74,22 +77,22 @@
 
           data.items.forEach((news) => {
             output += `
-    <div class="col-md-4 mb-4">
-      <div class="news-card">
+            <div class="col-sm-3 mb-4">
+              <div class="news-card">
 
-        ${news.thumbnail ? `<img src="${news.thumbnail}" class="news-img">` : ""}
+                ${news.thumbnail ? `<img src="${news.thumbnail}" class="news-img">` : ""}
 
-        <div class="news-content">
-          <div class="news-title">${news.title}</div>
+                <div class="news-content">
+                  <div class="news-title">${news.title}</div>
 
-          <a href="${news.link}" target="_blank"
-             class="btn btn-danger mt-2">
-             Read More
-          </a>
-        </div>
+                  <a href="${news.link}" target="_blank"
+                    class="btn btn-danger mt-2">
+                    Read More
+                  </a>
+                </div>
 
-      </div>
-    </div>`;
+              </div>
+            </div>`;
           });
 
           document.getElementById("newsContainer").innerHTML = output;
