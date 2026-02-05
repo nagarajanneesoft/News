@@ -1,20 +1,3 @@
-<?php
-
-$rssUrl = "https://tamil.oneindia.com/rss/feeds/tamil-news-fb.xml";
-
-/* Fetch RSS securely */
-$ch = curl_init();
-
-curl_setopt_array($ch, [
-    CURLOPT_URL =>
-$rssUrl, CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true,
-CURLOPT_TIMEOUT => 10, // VERY IMPORTANT CURLOPT_SSL_VERIFYPEER => false,
-CURLOPT_SSL_VERIFYHOST => false, CURLOPT_HTTPHEADER => [ "User-Agent:
-Mozilla/5.0 (Windows NT 10.0; Win64; x64)" ] ]); $response = curl_exec($ch); if
-(curl_errno($ch)) { die("RSS Fetch Error: " . curl_error($ch)); }
-curl_close($ch); /* Parse XML safely */ libxml_use_internal_errors(true); $rss =
-simplexml_load_string($response); ?>
-
 <!doctype html>
 <html lang="ta">
   <head>
@@ -44,8 +27,8 @@ simplexml_load_string($response); ?>
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: 0.3s;
         background: white;
+        transition: 0.3s;
       }
 
       .news-card:hover {
@@ -54,8 +37,8 @@ simplexml_load_string($response); ?>
 
       .news-img {
         height: 200px;
-        object-fit: cover;
         width: 100%;
+        object-fit: cover;
       }
 
       .news-content {
@@ -76,29 +59,45 @@ simplexml_load_string($response); ?>
     </div>
 
     <div class="container">
-      <div class="row">
-        <?php if (!$rss) { echo "
-        <h4>Unable to load Tamil news currently.</h4>
-        "; } else { foreach ($rss->channel->item as $news) {
-        preg_match('/src="([^"]+)"/', $news->description, $img); $image =
-        $img[1] ?? ''; echo '
-        <div class="col-md-4 mb-4">
-          <div class="news-card">
-            '.($image ? "<img src="$image" class="news-img" />" : "").'
-
-            <div class="news-content">
-              <div class="news-title">'.$news->title.'</div>
-              <a
-                href="'.$news->link.'"
-                target="_blank"
-                class="btn btn-danger mt-2"
-                >Read More</a
-              >
-            </div>
-          </div>
-        </div>
-        '; } } ?>
-      </div>
+      <div class="row" id="newsContainer">Loading news...</div>
     </div>
+
+    <script>
+      // RSS → JSON converter API
+      const rssUrl = "https://tamil.oneindia.com/rss/feeds/tamil-news-fb.xml";
+      const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+      fetch(api)
+        .then((res) => res.json())
+        .then((data) => {
+          let output = "";
+
+          data.items.forEach((news) => {
+            output += `
+    <div class="col-md-4 mb-4">
+      <div class="news-card">
+
+        ${news.thumbnail ? `<img src="${news.thumbnail}" class="news-img">` : ""}
+
+        <div class="news-content">
+          <div class="news-title">${news.title}</div>
+
+          <a href="${news.link}" target="_blank"
+             class="btn btn-danger mt-2">
+             Read More
+          </a>
+        </div>
+
+      </div>
+    </div>`;
+          });
+
+          document.getElementById("newsContainer").innerHTML = output;
+        })
+        .catch(() => {
+          document.getElementById("newsContainer").innerHTML =
+            "<h4>Unable to load news</h4>";
+        });
+    </script>
   </body>
 </html>
